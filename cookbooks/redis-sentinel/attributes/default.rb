@@ -1,0 +1,10 @@
+default["redis-sentinel"]["version"] = "3.2.8"
+default["redis-sentinel"]["redis_server_path"] = "/usr/local/bin/redis-server"
+default["redis-sentinel"]["timeout"] = 10
+default["redis-sentinel"]["reconnect_attempts"] = 3
+default["redis-sentinel"]["master_hostname"] = "redis-master"
+default["redis-sentinel"]["master_port"] = "6379"
+default["redis-sentinel"]["master_name"] = "master"
+default["redis-sentinel"]["quorum"] = 2
+default["redis-sentinel"]["down_after_milliseconds"] = 5000
+default["redis-sentinel"]["failover_timeout"] = 15000

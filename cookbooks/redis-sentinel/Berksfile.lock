@@ -1,0 +1,14 @@
+DEPENDENCIES
+  build-essential
+
+GRAPH
+  build-essential (8.0.1)
+    mingw (>= 1.1)
+    seven_zip (>= 0.0.0)
+  mingw (2.0.0)
+    seven_zip (>= 0.0.0)
+  ohai (5.0.3)
+  seven_zip (2.0.2)
+    windows (>= 1.2.2)
+  windows (3.0.5)
+    ohai (>= 4.0.0)

@@ -1,0 +1,60 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          redis-sentinel
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     3 4 5
+# Default-Stop:      0 1 6
+# X-Stop-After:      redis_6379
+# Short-Description: Redis Sentinel
+# Description:       Redis Sentinel provides high availability for Redis
+### END INIT INFO
+
+
+NAME=redis-sentinel
+BIN=/usr/local/bin/redis-server
+PID_FILE=/var/run/redis/sentinel.pid
+CMD=$1
+
+start() {
+  echo "Starting $NAME ..."
+  exec 2>&1 $BIN /etc/redis/sentinel.conf --sentinel | logger -t sentinel &
+  echo $! > "${PID_FILE}";
+}
+
+stop() {
+  PID=$(cat $PID_FILE)
+  echo "Stopping $NAME (PID: $PID) ..." && kill $PID
+}
+
+restart() {
+  echo "Restarting $NAME ..."
+  stop
+  sleep 1
+  start
+}
+
+status_q() {
+    [ -f $PID_FILE ] || return 1
+    kill -s 0 $(cat $PID_FILE)
+    return $?
+}
+
+case "$CMD" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  status)
+    status_q && echo "Redis Sentinel is running with PID $(cat $PID_FILE)" && exit 0
+    echo "Redis Sentinel is not running"
+    ;;
+  *)
+    echo "Usage $0 {start|stop|restart}"
+    exit 2
+esac

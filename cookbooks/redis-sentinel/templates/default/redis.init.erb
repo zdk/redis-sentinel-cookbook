@@ -1,0 +1,72 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          redis_6379
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     3 4 5
+# Default-Stop:      0 1 6
+# X-Start-Before:    redis-sentinel
+# Short-Description: Redis
+# Description:       Redis in-memory data structure store
+### END INIT INFO
+
+redis="/usr/local/bin/redis-server"
+prog=$(basename $redis)
+PID_FILE="/var/run/redis/redis_6379.pid"
+
+REDIS_CONF_FILE="/etc/redis/redis.conf"
+
+[ -f /etc/sysconfig/redis ] && . /etc/sysconfig/redis
+
+lockfile=/var/lock/subsys/redis
+
+start() {
+    [ -x $redis ] || exit 5
+    [ -f $REDIS_CONF_FILE ] || (echo "Missing config file at $REDIS_CONF_FILE" && exit 6)
+    echo "Starting $prog: with config $REDIS_CONF_FILE"
+    $redis $REDIS_CONF_FILE
+    retval=$?
+    [ $retval -eq 0 ] && touch $lockfile
+    return $retval
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    kill -s QUIT $(cat $PID_FILE)
+    retval=$?
+    [ $retval -eq 0 ] && rm -f $lockfile
+    return $retval
+}
+
+status_q() {
+    [ -f $PID_FILE ] || return 1
+    kill -s 0 $(cat $PID_FILE)
+    return $?
+}
+
+restart() {
+    stop
+    echo
+    start
+}
+
+case "$1" in
+    start)
+        status_q && exit 0
+        $1
+        ;;
+    stop)
+        status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    status)
+        status_q && echo "Redis is running with PID $(cat $PID_FILE)" && exit 0
+        echo "Redis is not running"
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart}"
+        exit 2
+esac
